@@ -23,18 +23,46 @@ function main() {
         console.log('WebGL is good to go');
     }
 
+
+    console.log("calvin sagt hallo")
     /*========== Define and Store the Geometry ==========*/
 
     /*====== Define front-face vertices ======*/
-    
 
-    /*====== Define front-face buffer ======*/
-    
+    const twoTrianglesVertices = [
+        //front triangle
+        -1.0, -0.5, -2.0,
+        0.0, -0.5, -2.0,
+        -0.5, 0.5, -2.0,
+
+        //back triangle
+        -0, 8, -0.6, -3.0,
+        0.2, -0.6, -3.0,
+        -0.3, 0.4, -3.0,
+    ]
+
+
+    /*====== Define triangle-face buffer ======*/
+    const vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(twoTrianglesVertices), gl.STATIC_DRAW);
     /*====== Define colors ======*/
-    
+
+    const twoTrianglesColors = [
+        //front triangle
+        1.0,0.0,0.0,1.0,
+        0.0,1.0,0.0,1.0,
+        0.0,0.0,1.0,1.0,
+        //back triangle
+        1.0,1.0,0.0,1.0,
+        1.0,.0,0.5,1.0,
+        1.0,0.53,0.75,1.0   
+    ]
 
     /*====== Define color buffer ======*/
-    
+    const colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(twoTrianglesColors), gl.STATIC_DRAW);
     /*========== Shaders ==========*/
 
     /*====== Define shader sources ======*/
@@ -54,13 +82,13 @@ function main() {
 
     /* TODO ====== Create and link shader programs ======*/
 
-    /*========== Connect the attributes with the vertex shader ===================*/        
-    
+    /*========== Connect the attributes with the vertex shader ===================*/
+
     /*========== Connect the uniforms with the vertex shader ===================*/
 
-        // define projection matrix
+    // define projection matrix
 
-        // define modelview matrix
+    // define modelview matrix
 
     /*========== Drawing ======================== */
 
