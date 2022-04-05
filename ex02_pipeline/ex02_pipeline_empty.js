@@ -31,14 +31,14 @@ function main() {
 
     const twoTrianglesVertices = [
         //front triangle
-        -1.0, -0.5, -2.0,
-        0.0, -0.5, -2.0,
-        -0.5, 0.5, -2.0,
+        -.5, -0.5, -2.0,
+        0.6, -0.6, -2.0,
+        -0, 0.65, -2.0,
 
         //back triangle
-        -0, 8, -0.6, -3.0,
-        0.2, -0.6, -3.0,
-        -0.3, 0.4, -3.0,
+        -0.5, -0.6, -3.0,
+        1.8, -0.3, -3.0,
+        0.1, 0.6, -3.0,
     ]
 
 
@@ -55,7 +55,7 @@ function main() {
         0.0, 0.0, 1.0, 1.0,
         //back triangle
         1.0, 1.0, 0.0, 1.0,
-        1.0, .0, 0.5, 1.0,
+        1.0, 0.0, 0.5, 1.0,
         1.0, 0.53, 0.75, 1.0
     ]
 
@@ -91,10 +91,39 @@ function main() {
     `;
 
     /* TODO ====== Create shaders ======*/
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(vertexShader, vsSource);
+    gl.shaderSource(fragmentShader, fsSource);
 
     /* TODO ====== Compile shaders ======*/
+    gl.compileShader(vertexShader);
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)){
+        alert("An error occured while compiling the vertex shader occured:" + gl.getShaderInfoLog(vertexShader));
+        gl.deleteShader(vertexShader);
+        return null;
+    } else{
+        console.log("Vertex shader successfully compiled.");
+    }
+
+
+    gl.compileShader(fragmentShader);
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)){
+        alert("An error occured while compiling the fragment shader occured:" + gl.getShaderInfoLog(fragmentShader));
+        gl.deleteShader(fragmentShader);
+        return null;
+    } else{
+        console.log("Fragment shader successfully compiled.");
+    }
 
     /* TODO ====== Create and link shader programs ======*/
+    const program = gl.createProgram();
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+
+    gl.linkProgram(program);
+    gl.useProgram(program);
+ 
 
     /*========== Connect the attributes with the vertex shader ===================*/
     const posAttribLocation = gl.getAttribLocation(program, "aPosition");
@@ -109,28 +138,37 @@ function main() {
     gl.enableVertexAttribArray(colorAttribLocation);
 
     /*========== Connect the uniforms with the vertex shader ===================*/
-
-
-    const projMatrixLocation = gl.getUniform(program, "uProjectionMatrix");
-    
+    const projMatrixLocation = gl.getUniformLocation(program, "uProjectionMatrix");
     // define projection matrix
-    
     const projectionMatrix = mat4.create();
     const fieldOfView = 45 * Math.PI / 180
     const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     const zNear = 0.1;
     const zFar = 100.0;
+
     mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
     mat4.translate(projectionMatrix, projectionMatrix, [1.0, 0.0, 0.0]);
     console.log("Projection matrix: %s", mat4.str(projectionMatrix));
 
     gl.uniformMatrix4fv(projMatrixLocation, false, projectionMatrix);
-    
+
+    const modelviewMatrixLocation = gl.getUniformLocation(program, "uModelViewMatrix");
+
     // define modelview matrix
-    
+
+    const modelviewMatrix = mat4.create();
+    const angle = 0.52;
+    const axis = [0, 1, 0]
+    mat4.rotate(modelviewMatrix, modelviewMatrix, angle, axis);
+    console.log("Modelview matrix: %s", mat4.str(modelviewMatrix));
+
+    gl.uniformMatrix4fv(modelviewMatrixLocation, false, modelviewMatrix);
+
     /*========== Drawing ======================== */
 
     gl.clearColor(1, 1, 1, 1);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
     // TODO
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 

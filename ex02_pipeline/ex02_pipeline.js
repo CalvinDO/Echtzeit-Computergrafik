@@ -84,12 +84,7 @@ function main() {
 
         void main() {
             gl_FragColor = vFragColor;
-            // if( mod(gl_FragCoord.x,10.0) < 5.0 ) {  
-            //     gl_FragColor = vFragColor;
-            // } else {
-            //     gl_FragColor = vec4(1.0,1.0,1.0,2.0) 
-            //                    - vFragColor;
-            // }              
+             
         }    
     `;
 
