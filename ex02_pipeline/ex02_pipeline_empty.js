@@ -17,6 +17,7 @@ function main() {
     const canvas = document.querySelector("#c");
     /** @type {WebGLRenderingContext} */
     const gl = canvas.getContext('webgl');
+
     if (!gl) {
         console.log('WebGL unavailable');
     } else {
@@ -35,11 +36,22 @@ function main() {
         0.6, -0.6, -2.0,
         -0, 0.65, -2.0,
 
+        /*
+        -.5, -0.5, -3,
+        0.6, -0.6, -3,
+        -0, 0.65, -3,
+        */
+
         //back triangle
         -0.5, -0.6, -3.0,
         1.8, -0.3, -3.0,
         0.1, 0.6, -3.0,
-    ]
+/*
+        -0.5, -0.6, -5.0,
+        1.8, -0.3, -5.0,
+        0.1, 0.6, -5.0,
+  
+    */    ]
 
 
     /*====== Define triangle-face buffer ======*/
@@ -53,39 +65,93 @@ function main() {
         1.0, 0.0, 0.0, 1.0,
         0.0, 1.0, 0.0, 1.0,
         0.0, 0.0, 1.0, 1.0,
+        /*
+                1.0, 0.0, 0.0, 1.0,
+                0.0, 1.0, 0.0, 1.0,
+                0.0, 0.0, 1.0, 1.0,
+                */
         //back triangle
         1.0, 1.0, 0.0, 1.0,
         1.0, 0.0, 0.5, 1.0,
-        1.0, 0.53, 0.75, 1.0
+        1.0, 0.53, 0.75, 1.0,
+        /*
+                1.0, 1.0, 0.0, 1.0,
+                1.0, 0.0, 0.5, 1.0,
+                1.0, 0.53, 0.75, 1.0
+                */
     ]
 
     /*====== Define color buffer ======*/
     const colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(twoTrianglesColors), gl.STATIC_DRAW);
+
+
+    /* ======= Texture Coordinate ====== */
+    const textureCoordinates = [
+        //front triangle
+        0.0, 0.0,
+        0.0, 1.0,
+        1.0, 0.0,
+
+        //back triangle
+        0.0, 0.0,
+        1.0, 0.0,
+        0.0, 1.0
+    ]
+
+    /*====== Define texture buffer ======*/
+    const textureBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
+
+
+
     /*========== Shaders ==========*/
 
     /*====== Define shader sources ======*/
     const vsSource = `
             attribute vec4 aPosition;
             attribute vec4 aColor;
+            attribute vec2 aTexCoord;
             uniform mat4 uModelViewMatrix;
             uniform mat4 uProjectionMatrix;
             varying vec4 vFragColor;
+            varying vec2 vTexCoords;
 
             void main(){
-                gl_Position = uProjectionMatrix * uModelViewMatrix * aPosition;
+                vec4 pos = aPosition;
+                pos.x = pos.x/1.0;
+                gl_Position = uProjectionMatrix * uModelViewMatrix * pos;
                 vFragColor = aColor;
+
+                vTexCoords = aTexCoord;
             }
     `;
 
     const fsSource = `
+
         precision mediump float;
         
+
         varying vec4 vFragColor;
+        varying vec2 vTexCoords;
+        
+        const vec4 c_color1 = vec4(1, 0, 0, 1);
+        const vec4 c_color2 = vec4(0, 1, 0, 1);
+
+        vec4 color;
 
         void main(){
-            gl_FragColor = vFragColor;
+
+            if (mod(vTexCoords.x, 0.05) > 0.025){
+                color = vFragColor;
+            } else{
+                discard;
+
+            }
+
+            gl_FragColor = color;
         }
             
     `;
@@ -98,21 +164,21 @@ function main() {
 
     /* TODO ====== Compile shaders ======*/
     gl.compileShader(vertexShader);
-    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)){
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
         alert("An error occured while compiling the vertex shader occured:" + gl.getShaderInfoLog(vertexShader));
         gl.deleteShader(vertexShader);
         return null;
-    } else{
+    } else {
         console.log("Vertex shader successfully compiled.");
     }
 
 
     gl.compileShader(fragmentShader);
-    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)){
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
         alert("An error occured while compiling the fragment shader occured:" + gl.getShaderInfoLog(fragmentShader));
         gl.deleteShader(fragmentShader);
         return null;
-    } else{
+    } else {
         console.log("Fragment shader successfully compiled.");
     }
 
@@ -123,7 +189,7 @@ function main() {
 
     gl.linkProgram(program);
     gl.useProgram(program);
- 
+
 
     /*========== Connect the attributes with the vertex shader ===================*/
     const posAttribLocation = gl.getAttribLocation(program, "aPosition");
@@ -136,6 +202,12 @@ function main() {
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     gl.vertexAttribPointer(colorAttribLocation, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(colorAttribLocation);
+
+
+    const textureAttribLocation = gl.getAttribLocation(program, "aTexCoord");
+    gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
+    gl.vertexAttribPointer(textureAttribLocation, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(textureAttribLocation);
 
     /*========== Connect the uniforms with the vertex shader ===================*/
     const projMatrixLocation = gl.getUniformLocation(program, "uProjectionMatrix");
