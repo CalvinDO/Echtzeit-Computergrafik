@@ -5,6 +5,17 @@
 /**
  * Convert r, g, b to normalized vec3
  */
+ 
+#define t iTime
+
+const float PI = 3.1415926535897932384626433832795;
+
+vec2 startPosition = vec2(250.0, 250.0);
+vec2 startSpeed = vec2(-5.0, 20.0);
+vec2 gravityVector = vec2(0.0, -200.0);
+
+int amountBalls = 50;
+
 vec3 rgb(float r, float g, float b) {
 	return vec3(r / 255.0, g / 255.0, b / 255.0);
 }
@@ -19,25 +30,54 @@ vec4 circle(vec2 uv, vec2 pos, float rad, vec3 color) {
 	return vec4(color, 1.0 - t);
 }
 
+vec2 GetVel(float t)
+{
+	return startSpeed + gravityVector*t;
+}
+
+
+vec2 GetPos(int index)
+{
+    float fraction = float(index) / float(amountBalls);
+    fraction *= PI * 2.0;
+    vec2 individSpeed = vec2(cos(fraction), sin(fraction)) * 250.0;
+    //vec2 individSpeed = float(index) * startSpeed;
+    //vec2 individSpeed = startSpeed;
+    
+    vec2 result = startPosition + individSpeed * t + 0.5 * gravityVector*t*t;
+	return result;
+}
+
+
+vec4 getBall(int index, vec2 uv)
+{
+
+    float radius = 0.025 * iResolution.y;
+    
+    // Circle
+    vec3 blue = rgb(150.0, 150.0, float(255));
+    
+	vec4 newBallLayer = circle(uv, GetPos(index), radius/2.0, blue);
+    return newBallLayer;
+}
+
 void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 
 	vec2 uv = fragCoord.xy;
-	vec2 center = iResolution.xy * 0.5;
+	vec2 center = startPosition;
+    
 	float radius = 0.125 * iResolution.y;
-
+    
+    startPosition = iResolution.xy / 2.0;
+   
     // Background layer
-	vec4 layer1 = vec4(rgb(210.0, 222.0, 228.0), 1.0);
+	vec4 layer1 = vec4(rgb(21.0, 22.0, 22.0), 1.0);
 	
-	// Circle
-	vec3 red = rgb(225.0, 95.0, 60.0);
-    vec3 blue = rgb(0.0, 0.0, 230.0);
+    fragColor = mix(fragColor, layer1, layer1.a);
     
-	vec4 layer2 = circle(uv, center, radius, red);
+    for (int index = 0; index < amountBalls; index++){
     
-    vec2 secondCenter = center - vec2(iResolution.x/5.0, 0);
-	vec4 layer3 = circle(uv, secondCenter, radius/2.0, red);
-    
-	// Blend the two
-	fragColor = mix(layer1, layer2, layer2.a);
-    fragColor = mix(fragColor, layer3, layer3.a);
+       vec4 newBall = getBall(index, uv);
+       fragColor = mix(fragColor, newBall,newBall.a);
+    }
 }
