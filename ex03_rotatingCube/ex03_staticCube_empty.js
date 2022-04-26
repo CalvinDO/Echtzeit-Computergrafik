@@ -313,8 +313,8 @@ function loadShader(gl, type, source) {
 // Draw the scene.
 //
 function drawScene(gl, programInfo, buffers, deltaTime) {
-  
-  
+
+
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -358,10 +358,10 @@ function drawScene(gl, programInfo, buffers, deltaTime) {
     [0.0, 0.0, -6.0]); // amount to translate
 
   // set some fixed rotation value
-  cubeRotation += deltaTime*0.2;
+  cubeRotation += deltaTime * 0.2;
   // TODO: transform the cube with fixed cubeRotation
   // mat4.rotate(modelViewMatrix, modelViewMatrix, cubeRotation, [0.0, 1.0, 0.0])
-  mat4.rotate(modelViewMatrix, modelViewMatrix, cubeRotation, [1.0, 1.0, 1.0])
+  mat4.rotate(modelViewMatrix, modelViewMatrix, cubeRotation, [0.0, 1.0, 0.0])
 
 
 
