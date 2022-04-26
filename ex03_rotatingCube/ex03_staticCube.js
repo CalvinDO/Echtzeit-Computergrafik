@@ -45,11 +45,11 @@ function main() {
     `;
 
     const fsSource = `
-        varying lowp vec4 vColor;
-        
-        void main() {
-            gl_FragColor = vColor;
-        }
+      varying lowp vec4 vColor;
+      
+      void main() {
+          gl_FragColor = vColor;
+      }
     `;
 
     // Initialize a shader program; this is where all the lighting

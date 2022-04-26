@@ -13,6 +13,7 @@ const float PI = 3.1415926535897932384626433832795;
 vec2 startPosition = vec2(250.0, 250.0);
 vec2 startSpeed = vec2(-5.0, 20.0);
 vec2 gravityVector = vec2(0.0, -200.0);
+float speed = 250.0;
 
 int amountBalls = 50;
 
